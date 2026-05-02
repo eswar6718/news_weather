@@ -1,0 +1,331 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -32,
+        -384
+      ],
+      "id": "03de2e3a-3cbe-4e83-bf7c-41083d62675a",
+      "name": "When chat message received",
+      "webhookId": "c693c2f4-a1d0-4421-a6d3-6d4d20747fb5"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "You are a highly specialized assistant\nanswer tooo shorty to user in 2 to 3 lines only  whose primary function is to provide information strictly related to current events and news.\n\nYou must only answer questions that are related to news or verifiable current information.\nAll answers must be based on data retrieved from the connected MCP server.\nYou are not allowed to generate answers from your own knowledge, assumptions, or reasoning.\nIf no relevant information is available from the MCP server, you must clearly state that the information could not be found.\n\nStrict Rules:\n\nDo not answer from memory or prior knowledge.\nDo not speculate, अनुमान, or fabricate details.\nAlways rely on MCP-fetched data before responding.\nIf the user asks anything outside news or current information, do not answer the query.\n\nRefusal Style (Creative):\nIf a question is unrelated, respond in a polite and creative way, for example:\n\n“I’m tuned to the frequency of real-world updates and headlines—this request falls outside my signal range.”\n“That’s beyond the scope of my news radar. I can only report what’s happening in the world right now.”\n“I’m wired for live updates and verified reports—this one doesn’t fit my channel.”\n\nGoal:\nStay factual, grounded, and strictly dependent on MCP-sourced information while maintaining a clear and slightly creative tone in refusals."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "acc43c14-8543-4cd5-bf60-8c289ff29979",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-20b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        80,
+        208
+      ],
+      "id": "80898983-bc68-4dab-97e9-d938ad0df86c",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "j9IUoWwSvno8YHO8",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.message.message_id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        208
+      ],
+      "id": "4dc6971a-7802-4cb9-bae2-7118967f232c",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "path": "82c7e6f1-569f-412b-8246-3552bdd4ec97"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 2,
+      "position": [
+        688,
+        -32
+      ],
+      "id": "a3c1bf22-50f0-4255-b17a-3d807fbbf5dd",
+      "name": "MCP Server Trigger",
+      "webhookId": "82c7e6f1-569f-412b-8246-3552bdd4ec97"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "https://eswar6718.app.n8n.cloud/mcp/82c7e6f1-569f-412b-8246-3552bdd4ec97",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        400,
+        224
+      ],
+      "id": "aee1ba7b-1bdd-4a36-8066-b1cd76510d50",
+      "name": "MCP Client"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "typeVersion": 1,
+      "position": [
+        784,
+        208
+      ],
+      "id": "d1081039-101e-4195-8e98-d0d0ff77a780",
+      "name": "SerpAPI",
+      "credentials": {
+        "serpApi": {
+          "id": "ubfoqE7i2huPWdqF",
+          "name": "SerpAPI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "when user ask about the wether ",
+        "method": "POST",
+        "url": "https://api.tomorrow.io/v4/locations",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "NSXoS8bDWw7GhGovTwnDeQMDd1BNOFlG"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Name', ``, 'string') }}",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', ``, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        928,
+        192
+      ],
+      "id": "5744449a-3e77-4e3e-a616-bb18ea8806b0",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        656,
+        224
+      ],
+      "id": "8f399331-6cee-4af3-bcfa-eff25c68a95d",
+      "name": "Send a message in Gmail",
+      "webhookId": "5c06745f-ad38-46ae-818f-727b586741f6",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "kgknBRcET7DPN2gX",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        528,
+        0
+      ],
+      "id": "bb4e402a-8f8e-414a-a687-1198e7fa783e",
+      "name": "Send a text message",
+      "webhookId": "6541bae3-2999-4214-bbc7-f27497e638e9",
+      "credentials": {
+        "telegramApi": {
+          "id": "0jol5IKDj3sm2eQg",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -32,
+        0
+      ],
+      "id": "49439578-c157-4055-8706-045f58112f9f",
+      "name": "Telegram Trigger",
+      "webhookId": "96038a81-b124-4894-9da2-8c26510fb599",
+      "credentials": {
+        "telegramApi": {
+          "id": "0jol5IKDj3sm2eQg",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        []
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SerpAPI": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "e7dcfcf6-79ba-4720-9d16-a9a6bbd29753",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0d153b8bdac5a6fd9efb85b25f6aa421a952c563a9b643a3b2d7a67e0f76b2cd"
+  },
+  "id": "z0IkIspFCagNSGm8",
+  "tags": []
+}
